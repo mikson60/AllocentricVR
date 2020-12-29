@@ -6,9 +6,10 @@ using System.Linq;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private Transform cameraTransform;
     [SerializeField] private Rigidbody rb;
     
-    public float scale;
+    public float scale = 1f;
 
     private Vector3 headPosition;
     private Quaternion headRotation;
@@ -23,20 +24,16 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         getTracking();
+        
         if (calibrated)
         {
-            var lastPosition = (lastHeadPosition - initialHeadPosition) * scale;
-            var currentPosition = (headPosition - initialHeadPosition) * scale;
-            var movement = currentPosition - lastPosition;
+            var lastPosition = (lastHeadPosition - initialHeadPosition);
+            var currentPosition = (headPosition - initialHeadPosition);
+            var velocity = currentPosition - lastPosition;
 
-            var endPosition = transform.localPosition + new Vector3(movement.x, 0, movement.z);;
+            velocity.y = 0f;
             
-            //transform.localPosition += new Vector3(movement.x, 0, movement.z);
-            transform.localRotation = Quaternion.Euler(new Vector3(0,headRotation.eulerAngles.y,0));
-            
-            rb.MovePosition(transform.TransformPoint(endPosition));
-            
-            // transform.localPosition = new Vector3(transform.localPosition.x, 0.01f, transform.localPosition.z);
+            rb.velocity = velocity * scale;
         }
         else
         {
@@ -45,7 +42,7 @@ public class PlayerController : MonoBehaviour
                 // Tracking initialized
 
                 initialHeadPosition = headPosition;
-                Debug.Log(string.Format("Initialize headset on position {0}", headPosition.ToString()));
+                Debug.Log($"Initialize headset on position {headPosition.ToString()}");
 
                 calibrated = true;
             }
