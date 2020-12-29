@@ -144,7 +144,7 @@
       "url": "https://packages.unity.com"
     },
     "com.valvesoftware.unity.openvr": {
-      "version": "file:C:/Users/Glent/Downloads/com.valvesoftware.unity.openvr-1.1.2.tgz",
+      "version": "file:./com.valvesoftware.unity.openvr-1.1.2.tgz",
       "depth": 0,
       "source": "local-tarball",
       "dependencies": {
