@@ -1,12 +1,16 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class FollowObject : MonoBehaviour
 {
+    public enum Axis { X, Y, Z }
+    
     [Header("Settings")] 
     [SerializeField] private float _followSpeed = 1f;
     [SerializeField] private bool _usePhysics;
     [SerializeField] private bool _skipFollowOnFirstUpdate = true;
+
+    [Header("Constraints")] 
+    [SerializeField] private Axis _constrainedLocalAxis;
     
     [Header("References")]
     [SerializeField] private Transform _target;
@@ -46,15 +50,22 @@ public class FollowObject : MonoBehaviour
         _targetPos = _target.position;
         
         var targetMovementInWorldSpace = _targetPos - _lastTargetPos;
-        var targetMovementInLocalSpace = _target.InverseTransformDirection(targetMovementInWorldSpace); // How much did we move on our local axis?
+        var targetMovementInLocalSpace = _target.InverseTransformDirection(targetMovementInWorldSpace); // How much did we the target move on its local axis?
 
+        targetMovementInLocalSpace = new Vector3(
+            _constrainedLocalAxis == Axis.X ? 0f : targetMovementInLocalSpace.x, 
+            _constrainedLocalAxis == Axis.Y ? 0f : targetMovementInLocalSpace.y, 
+            _constrainedLocalAxis == Axis.Z ? 0f : targetMovementInLocalSpace.z);
+        
+        var movementVelocity = transform.TransformDirection(targetMovementInLocalSpace) * _followSpeed;
+        
         if (_usePhysics)
         {
-            _follower.velocity = transform.TransformDirection(targetMovementInLocalSpace) * _followSpeed;   
+            _follower.velocity = movementVelocity;   
         }
         else
         {
-            transform.position += transform.TransformDirection(targetMovementInLocalSpace) * _followSpeed;
+            transform.position += movementVelocity;
         }
         
         _lastTargetPos = _targetPos;
