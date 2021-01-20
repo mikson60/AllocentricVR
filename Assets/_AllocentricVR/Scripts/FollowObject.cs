@@ -21,6 +21,8 @@ public class FollowObject : MonoBehaviour
     private Vector3 _targetPos = Vector3.zero;
     private bool firstFrame = true;
     
+    private Quaternion _lastTargetRot = Quaternion.identity;
+    
     private void Update()
     {
         if (!_usePhysics)
@@ -44,9 +46,11 @@ public class FollowObject : MonoBehaviour
             firstFrame = false;
             _targetPos = _target.position;
             _lastTargetPos = _targetPos;
+            _lastTargetRot = _target.rotation;
             return;
         }
         
+        // POSITION
         _targetPos = _target.position;
         
         var targetMovementInWorldSpace = _targetPos - _lastTargetPos;
@@ -69,5 +73,16 @@ public class FollowObject : MonoBehaviour
         }
         
         _lastTargetPos = _targetPos;
+        
+        // ROTATION
+        // Get target's rotation difference on the world Y axis
+
+        var targetRotationDifference = _target.rotation * Quaternion.Inverse(_lastTargetRot);
+
+        _follower.transform.Rotate(0f, targetRotationDifference.eulerAngles.y, 0f, Space.Self);
+        
+        _lastTargetRot = _target.rotation;
+        
+        // Debug.Log("changed angle in world Y is: " + targetRotationDifference.eulerAngles.y);
     }
 }
